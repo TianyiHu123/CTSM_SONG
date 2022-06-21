@@ -16,9 +16,13 @@ begin
    ;
    ; Setup the namelist query script
    ;
-   csmdata  = getenv("CSMDATA");
-   clmroot  = getenv("CLM_ROOT");
+   ;csmdata  = getenv("CSMDATA");
+   ;clmroot  = getenv("CLM_ROOT");
+   csmdata = "/xdisk/chopinsong/chopinsong/CTSM_inputdata"
+   clmroot = "/home/u32/tianyihu/CTSM_SONG"
+   print("clmroot is "+clmroot);
    hgrid    = getenv("HGRID");          ; Get horizontal grid to use from env variable
+   print("HGRID is"+hgrid);
    querynml = "bld/queryDefaultNamelist.pl -silent -justvalue ";
    if ( .not. ismissing(csmdata) )then
       querynml = querynml+" -csmdata "+csmdata;
@@ -42,6 +46,7 @@ begin
       print( "Input "+filetype+" file does not exist or not found: "+ghgfile );
       exit
    end if
+   print(ghgfile)
    ncg = addfile( ghgfile, "r" );
 
    ;

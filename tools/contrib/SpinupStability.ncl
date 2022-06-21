@@ -3,7 +3,7 @@
 ; Script to examine stability of spinup simulation.
 ; This version operates on either monthly mean or multi-annual mean multi-variable history files 
 ; Keith Oleson, Jan 2019
-
+; $NCARG_ROOT=/cm/shared/uaapps/ncl_ncarg/6.4.0/
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
@@ -33,24 +33,25 @@ begin
 ;=======================================================================;
 
 ; GLOBAL EXAMPLE
-  caseid = "clm50_release-clm5.0.15_2deg_GSWP3V1_1850AD"
-  username = "oleson"
-  annual_hist = True
-  region = "Global"              ; Global, Arctic, or SPT (single point)
-  subper = 20                    ; Subsampling period in years
+; caseid = "1x1_Rainman_dynalloc_spinup"
+; username = "chopinsong"
+; annual_hist = True
+; region = "SPT"              ; Global, Arctic, or SPT (single point)
+; subper = 1                    ; Subsampling period in years
 
 ; SPT (single point) EXAMPLE
-; caseid = "clm50_release-clm5.0.15_SPT_GSWP3V1_1850spin"
-; username = "oleson"
-; annual_hist = True
-; region = "SPT"                 ; Global, Arctic, or SPT (single point)
-; subper = 20                    ; Subsampling period in years
+  caseid = "1x1_Rainman_dynallocSR2_final"
+  username = "chopinsong"
+  annual_hist = False
+  region = "SPT"                 ; Global, Arctic, or SPT (single point)
+  subper = 1                    ; Subsampling period in years
+  annual_mon_hist = True
 
   do_plot = True
 ; do_plot = False
 ;=======================================================================;
-
-  data_dir = "/glade/scratch/"+username+"/archive/"+caseid+"/lnd/hist/"
+   data_dir = "/groups/chopinsong/CTSM_tianyi/Rainman_spinuptest/1x1_Rainman_dynallocSR2_final/run/"
+;  data_dir = "/groups/"+username+"/CTSM_projects/archive/"+caseid+"/lnd/hist/"
   if ( systemfunc("test -d "+data_dir+"; echo $?" ) .ne. 0 )then
      print( "Input directory does not exist or not found: "+data_dir );
      print( "Make sure username and caseid and base directory is set correctly" )
@@ -80,14 +81,15 @@ begin
     totecosysc_thresh = 1.         ; disequilibrium threshold for individual gridcells (gC/m2/yr)
   end if
 
-  if (annual_hist) then
+  if (annual_hist .or. annual_mon_hist) then
     fls                       = systemfunc("ls " + data_dir + caseid+".clm?.h0.*-*-*-*"+".nc")
   else
     fls                       = systemfunc("ls " + data_dir + caseid+".clm?.h0.*-*"+".nc")
   end if
   flsdims                   = dimsizes(fls)
 
-  if (annual_hist) then
+ ; print("flsdims="+flsdims)
+  if (annual_hist .or. annual_mon_hist) then
     lstfile                   = addfile(fls(flsdims-1),"r")
   else
     lstfile                   = addfile(fls(flsdims-12),"r")  ;last month (DEC) of any year has mdate for next year
@@ -97,18 +99,29 @@ begin
   if (annual_hist) then
     lstyrdim                = dimsizes(lstfile->mcdate)
     mcdate_lst              = lstfile->mcdate(lstyrdim-1)
+    lstyr                   = toint(mcdate_lst)/10000
+  else if (annual_mon_hist) then
+    lstyrdim                = dimsizes(lstfile->mcdate)
+    mcdate_lst              = lstfile->mcdate(lstyrdim-12)
+    lstyr                   = toint(mcdate_lst)/10000
   else
     mcdate_lst              = lstfile->mcdate
+    lstyr                     = toint(mcdate_lst)/10000
   end if
-  lstyr                     = toint(mcdate_lst)/10000
-
+  end if
+ ; print("mcdate_lst="+mcdate_lst)
+ ; print("lstyr="+lstyr)
   fstfile                   = addfile(fls(0),"r")
-  if (annual_hist) then
+  if (annual_hist .or. annual_mon_hist) then
     mcdate_fst              = fstfile->mcdate(0)
   else
     mcdate_fst              = fstfile->mcdate
   end if
   fstyr                     = toint(mcdate_fst)/10000
+  print("mcdate_fst="+mcdate_fst)
+  print("fstyr="+fstyr)
+
+    
 
   yearplt                   = ispan(fstyr,lstyr,subper)
   yearpltrev                = yearplt(::-1)
@@ -119,15 +132,19 @@ begin
   else
     yearpltmid                = ispan(fstyr+subper/2,yearplt(nyrs-1),subper)
   end if
+  print("yearplt="+yearplt)
+  print("nyrs="+nyrs)
+  print("yearpltmid="+yearpltmid)
 
 ; Build an array of monthly indices
   monstr                    = new(nyrs*12,"integer")
   do i = 0,nyrs-1
     monstr(i*12:i*12+11)    = ispan(year(i)*12,year(i)*12+11,1)
   end do
+  print("monstr="+monstr)
 
 ; Add the data files together
-  if (annual_hist) then
+  if (annual_hist .or. annual_mon_hist) then
     data                    = addfiles(fls, "r")
     ListSetType (data, "cat")
   else
@@ -163,11 +180,14 @@ begin
         h2osno                = h2osno@_FillValue
       end if
     end if
+    test_tlai     =  data[:]->TLAI(:,:)  
+    print("test_tlai="+test_tlai)
   else
     totecosysc              = month_to_annual(data[:]->TOTECOSYSC,1)
     totsomc                 = month_to_annual(data[:]->TOTSOMC,1)
     totvegc                 = month_to_annual(data[:]->TOTVEGC,1)
     tlai                    = month_to_annual(data[:]->TLAI,1)
+    print("monthly_tlai="+tlai)
     gpp                     = month_to_annual(data[:]->GPP,1)
     if (isfilevar(data[0],"TWS")) then
       tws                     = month_to_annual(data[:]->TWS,1)
@@ -198,20 +218,32 @@ begin
     units                     = "Pg C"
   end if
   secinyr                   = 60.*60.*24.*365.
+  print("lat="+lat)
+  print("lon="+lon)
+  print("landfrac="+landfrac)
+  print("aream="+aream)
+  print("landarea="+landarea)
+
+
 
 ; TOTECOSYSC
   if (region .eq. "SPT") then
-    landareaC                 = conform_dims(dimsizes(totecosysc),landarea,(/1/))   ; conforming dimensions of landarea to totecosysc
+    landareaC                 = conform_dims(dimsizes(totecosysc),landarea,(/1/)) ;(/1/))   ; conforming dimensions of landarea to totecosysc
   else
     landareaC                 = conform_dims(dimsizes(totecosysc),landarea,(/1,2/)) ; conforming dimensions of landarea to totecosysc
   end if
   totecosysc_area           = totecosysc*landareaC                                ; correcting totecosysc for total land area
   totecosysc_Xg             = totecosysc_area*gtoXg                               ; g to Xg
   if (region .eq. "SPT") then
-    totecosysc_glob           = dim_sum_n(totecosysc_Xg, (/1/))                     ; sums over single point
+    totecosysc_glob           = dim_sum_n(totecosysc_Xg, (/1/)) ;(/1/))                     ; sums over single point
   else
     totecosysc_glob           = dim_sum_n(totecosysc_Xg, (/1,2/))                   ; sums over all latitudes
   end if
+  print("landareaC="+landareaC)
+  print("density_totecosysc="+totecosysc)
+  print("areasum_totecosysc="+totecosysc_Xg)
+  print("totecosysc_glob="+totecosysc_glob)
+
   totecosysc_glob!0         = "year"                                              
   totecosysc_glob&year      = yearplt                                             
   totecosysc_glob_del       = new(nyrs-1,"float")
@@ -279,7 +311,7 @@ begin
   totsomc_area           = totsomc*landareaC                                   ; correcting totsomc for total land area
   totsomc_Xg             = totsomc_area*gtoXg                                  ; g to Xg
   if (region .eq. "SPT") then
-    totsomc_glob           = dim_sum_n(totsomc_Xg, (/1/))                        ; sums over single point
+    totsomc_glob           = dim_sum_n(totsomc_Xg, (/1/)) ;(/1/))  test                      ; sums over single point
   else
     totsomc_glob           = dim_sum_n(totsomc_Xg, (/1,2/))                      ; sums over all latitudes
   end if
@@ -315,7 +347,7 @@ begin
   totvegc_area              = totvegc*landareaC                                   ; correcting totvegc for total land area
   totvegc_Xg                = totvegc_area*gtoXg                                  ; g to Xg
   if (region .eq. "SPT") then
-    totvegc_glob              = dim_sum_n(totvegc_Xg, (/1/))                        ; sums over single point
+    totvegc_glob              = dim_sum_n(totvegc_Xg, (/1/)) ;(/1/)) test                        ; sums over single point
   else
     totvegc_glob              = dim_sum_n(totvegc_Xg, (/1,2/))                      ; sums over all latitudes
   end if
@@ -351,12 +383,20 @@ begin
   areasum             = sum(area*landfrac)
   areaL               = area*landfrac
   if (region .eq. "SPT") then
-    landareaL           = conform_dims(dimsizes(tlai),areaL,(/1/))                  ; conforming dimensions of areaL to tlai
-    tlai_glob           = dim_sum_n(tlai*landareaL/areasum,(/1/))                   ; weighted tlai
+    landareaL           = conform_dims(dimsizes(tlai),areaL,(/1/))  ;(/1/))  test                ; conforming dimensions of areaL to tlai
+    tlai_glob           = dim_sum_n(tlai*landareaL/areasum,(/1/)) ;(/1/))  test                 ; weighted tlai
   else
     landareaL           = conform_dims(dimsizes(tlai),areaL,(/1,2/))                ; conforming dimensions of areaL to tlai
     tlai_glob           = dim_sum_n(tlai*landareaL/areasum,(/1,2/))                 ; weighted global tlai
   end if
+  
+  print("tlai="+tlai) 
+  print("areasum="+areasum)
+  print("areaL="+areaL)
+  print("landareaL="+landareaL)
+  print("tlai_glob="+tlai_glob)  
+
+
   tlai_glob!0         = "year"                                                
   tlai_glob&year      = yearplt                                               
   tlai_glob_del       = new(nyrs-1,"float")
@@ -389,7 +429,7 @@ begin
   gpp_area              = gpp*landareaC                                   ; correcting gpp for total land area
   gpp_Xg                = gpp_area*gtoXg*secinyr                          ; g to Xg and sec to yrs
   if (region .eq. "SPT") then
-    gpp_glob              = dim_sum_n(gpp_Xg, (/1/))                        ; sums over single point
+    gpp_glob              = dim_sum_n(gpp_Xg, (/1/)) ;(/1/)) test                        ; sums over single point
   else
     gpp_glob              = dim_sum_n(gpp_Xg, (/1,2/))                      ; sums over all latitudes
   end if
@@ -425,7 +465,7 @@ begin
   if (isfilevar(data[0],"TWS")) then
 
   if (region .eq. "SPT") then
-    tws_glob           = (dim_sum_n(tws*landareaL/areasum,(/1/)))/1.e3    ; weighted tws (meters)
+    tws_glob           = (dim_sum_n(tws*landareaL/areasum,(/1/)))/1.e3 ;(/1/)))/1.e3 test    ; weighted tws (meters)
   else
     tws_glob           = (dim_sum_n(tws*landareaL/areasum,(/1,2/)))/1.e3    ; weighted global tws (meters)
   end if
@@ -474,7 +514,7 @@ begin
   if (isfilevar(data[0],"H2OSNO")) then
 
   if (region .eq. "SPT") then
-    h2osno_glob           = dim_sum_n(h2osno*landareaL/areasum,(/1/))      ; weighted h2osno (mm)
+    h2osno_glob           = dim_sum_n(h2osno*landareaL/areasum,(/1/)) ;(/1/)) test     ; weighted h2osno (mm)
   else
     h2osno_glob           = dim_sum_n(h2osno*landareaL/areasum,(/1,2/))    ; weighted global h2osno (mm)
   end if
@@ -523,11 +563,11 @@ begin
 ;===============================Plotting====================================;
   if (do_plot) then
 
-; wks_type = "png"
+ wks_type = "png"
 ; wks_type@wkWidth  = 2500
 ; wks_type@wkHeight = 2500
-; wks_type = "x11"
-  wks_type = "ps"
+;  wks_type = "x11"
+;  wks_type = "ps"
 ; wks_type = "pdf"
   wks                        = gsn_open_wks (wks_type, caseid+"_Spinup")
   gsn_define_colormap(wks, "ViBlGrWhYeOrRe")
@@ -602,6 +642,8 @@ begin
   delete(res@trYMinF)
   res@tiYAxisString          = "m ~S~2~N~ m~S~-2~N~"
   res@tiMainString           = "TLAI"
+  print("plot_glob="+tlai_glob)
+  print("yearplt="+yearplt)
   plot(6)                    = gsn_csm_xy(wks,yearplt,tlai_glob,res)
 
   res@tiYAxisString          = "m ~S~2~N~ m~S~-2~N~"
