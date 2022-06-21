@@ -1938,9 +1938,11 @@ sub setup_logic_create_crop_landunit {
   if ( &value_is_true($nl_flags->{'use_fates'}) && &value_is_true($nl->get_value($var)) ) {
      $log->fatal_error( "$var is true and yet use_fates is being set, which contradicts that (use_fates requires $var to be .false." );
   }
-  if ( (! &value_is_true($nl_flags->{'use_fates'})) && (! &value_is_true($nl->get_value($var))) ) {
-     $log->fatal_error( "$var is false which is ONLY allowed when FATES is being used" );
-  }
+#-----commented by Tianyihu for Rainman
+#  if ( (! &value_is_true($nl_flags->{'use_fates'})) && (! &value_is_true($nl->get_value($var))) ) {
+#     $log->fatal_error( "$var is false which is ONLY allowed when FATES is being used" );
+#  }
+#-------------------------------------
 }
 
 #-------------------------------------------------------------------------------
@@ -2525,10 +2527,11 @@ sub setup_logic_do_transient_crops {
 
    my $dopft = "do_transient_pfts";
    # Make sure the value agrees with the do_transient_pft flag
-   if ( (  &value_is_true($nl->get_value($var))) && (! &value_is_true($nl->get_value($dopft))) ||
-        (! &value_is_true($nl->get_value($var))) && (  &value_is_true($nl->get_value($dopft))) ) {
-      $log->fatal_error("$var and $dopft do NOT agree and need to");
-   }
+   # Tianyi modified for only pft change run
+   #if ( (  &value_is_true($nl->get_value($var))) && (! &value_is_true($nl->get_value($dopft))) ||
+   #     (! &value_is_true($nl->get_value($var))) && (  &value_is_true($nl->get_value($dopft))) ) {
+   #   $log->fatal_error("$var and $dopft do NOT agree and need to");
+   #}
 }
 
 sub setup_logic_do_transient_lakes {
@@ -3097,7 +3100,8 @@ sub setup_logic_dynamic_roots {
                        "Set the bgc mode to 'cn' or 'bgc'.");
   }
   if ( &value_is_true( $use_dynroot ) && &value_is_true( $nl_flags->{'use_hydrstress'} ) ) {
-     $log->fatal_error("Cannot turn use_dynroot on when use_hydrstress is on" );
+     ###Tianyi Modify for dynroot###
+     #$log->fatal_error("Cannot turn use_dynroot on when use_hydrstress is on" );
   }
 }
 
