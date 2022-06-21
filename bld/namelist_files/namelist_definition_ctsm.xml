@@ -1153,6 +1153,14 @@ Percentage threshold above which the model keeps the urban landunits. Selecting 
        group="clm_inparm" valid_values="" value=".false.">
 Toggle to turn on the dynamic root model
 </entry>
+<!--     Tianyi Hu added for new dynroot scheme       -->
+<entry id="dynroot_scheme" type="integer" category="physics"
+       group="clm_inparm" valid_values="" value="1">
+Song 2013 dynamic scheme root model
+</entry>
+
+<!--                                                  -->
+
 
 <entry id="use_SSRE" type="logical" category="physics"
        group="clm_inparm" valid_values="" value=".false.">
@@ -2108,6 +2116,20 @@ Flag to reseed any dead plants on startup from reading the initial conditions fi
 <entry id="dribble_crophrv_xsmrpool_2atm" type="logical" category="clm_physics"
        group="cn_general" valid_values="" >
 Harvest the XSMR pool at crop harvest time to the atmosphere slowly at an exponential rate
+</entry>
+
+<!--add by Yang Song for transplant-->
+<entry id="transplant" type="logical" category="clm_physics"
+       group="cn_general" valid_values="" >
+Flag to transplant plant to the grid, reading this data from the initial conditions file 
+</entry>
+<entry id="transplant_num" type="integer" category="clm_physics"
+       group="cn_general" valid_values="" >
+pft number that will be transplant to the grid, reading this data from the initial conditions file 
+</entry>
+<entry id="transplant_frac" type="real" category="clm_physics"
+       group="cn_general" valid_values="" >
+Fraction of transplanted plant realted to the reference plant GPP from the initial conditions file 
 </entry>
 
 <!-- C isotope flags    -->
