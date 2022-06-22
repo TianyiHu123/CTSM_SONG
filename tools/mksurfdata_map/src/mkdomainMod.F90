@@ -98,11 +98,11 @@ contains
 
     nb = 1
     ne = ns
-    
+    write(6,*) 'Whats wrong here? Begin:' 
     if (domain%set == set) then
        call domain_clean(domain)
     endif
-    
+    write(6,*) '2'
     allocate(domain%mask(ns), &
              domain%frac(ns), &
              domain%latc(ns), &
@@ -112,20 +112,21 @@ contains
              domain%lonw(ns), &
              domain%lone(ns), &
              domain%area(ns), stat=ier)
+    write(6,*) '3'
     if (ier /= 0) then
        write(6,*) 'domain_init ERROR: allocate mask, frac, lat, lon, area '
     endif
-    
+
     domain%ns       = ns
     domain%mask     = -9999
     domain%frac     = -1.0e36
     domain%latc     = nan
     domain%lonc     = nan
-    domain%area     = nan
+    domain%area(:)     = nan
     domain%set      = set
     domain%fracset  = .false.
     domain%maskset  = .false.
-    
+
   end subroutine domain_init
 
 !------------------------------------------------------------------------------
@@ -395,7 +396,7 @@ end subroutine domain_check
     end if
 
     call check_ret(nf_open(fname, 0, ncid), subname)
-
+    
     call domain_read_dims(domain, ncid)
     call domain_init(domain, domain%ns)
     write(6,*) trim(subname),' initialized domain'
@@ -700,7 +701,7 @@ end subroutine domain_check
             dimset = .true.
          end if
       endif
-      
+
     end subroutine domain_read_dims_1d
 
   end subroutine domain_read_dims
@@ -786,7 +787,7 @@ end subroutine domain_check
     if (ret /= NF_NOERR) then
        write(6,*)'netcdf error from ',trim(calling), ' rcode = ', ret, &
                  ' error = ', NF_STRERROR(ret)
-       call abort()
+         call abort()
     end if
 
   end subroutine check_ret

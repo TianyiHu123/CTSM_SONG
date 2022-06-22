@@ -148,7 +148,6 @@ program mksurfdat
 
     character(len=32) :: subname = 'mksrfdat'  ! program name
     type(harvestDataType) :: harvdata
-
     namelist /clmexp/              &
 	 mksrf_fgrid,              &	
 	 mksrf_gridtype,           &	
@@ -306,16 +305,19 @@ program mksurfdat
     ! ======================================================================
 
     write(6,*) 'Attempting to initialize control settings .....'
-
+    print*, "TEST_MAKESURF_MAP1"
     mksrf_gridtype    = 'global'
     outnc_large_files = .false.
     outnc_double      = .true.
     outnc_vic         = .false.
     outnc_3dglc       = .false.
     all_urban         = .false.
+    !==== Tianyi Hu ====
+    !all_veg           = .true.
+    !===================
     all_veg           = .false.
     no_inlandwet      = .true.
-
+    print*, "TEST_MAKESURF_MAP2"
     ! default value for bug work around
     urban_skip_abort_on_invalid_data_check = .false.
 
@@ -382,12 +384,18 @@ program mksurfdat
     !
     ! Call module initialization routines
     !
+    !--------Revised-------
     call mksoilInit( )
+    write(*,*) 'Soil Initialize'
     call mkpftInit( zero_out_l=all_urban, all_veg_l=all_veg )
+    write(*,*) 'pft Initialize'
     allocate ( elevclass(nglcec+1) )
     call mkglcmecInit (elevclass)
+    write(*,*) 'glc Initialize'
     call mkurbanInit (mksrf_furban)
-
+    write(*,*) 'Urban Initialize'
+    write(*,*) 'mksrf_furban= ', mksrf_furban
+    !--------------------------------
     if ( all_veg )then
        write(6,*) 'Output ALL data in file as 100% vegetated'
     end if
@@ -597,11 +605,16 @@ program mksurfdat
          ndiag=ndiag, zero_out=all_urban.or.all_veg, glac_o=pctgla)
 
     ! Make glacier region ID [glacier_region] from [fglacierregion] dataset
-
+    ! revised by Yang Song for machine can't produce mapping files
+    
+    if (all_veg) then
+    glacier_region = 0
+    else
     call mkglacierregion (ldomain, mapfname=map_fglacierregion, &
          datfname=mksrf_fglacierregion, ndiag=ndiag, &
          glacier_region_o = glacier_region)
-
+    endif
+    
     ! Make soil texture [pctsand, pctclay]  [fsoitex]
 
     call mksoiltex (ldomain, mapfname=map_fsoitex, datfname=mksrf_fsoitex, &
@@ -639,11 +652,12 @@ program mksurfdat
          ndiag=ndiag, agfirepkmon_o=agfirepkmon)
 
     ! Make urban fraction [pcturb] from [furban] dataset
-
+    !write(*,*) 'start to mkurban'
     call mkurban (ldomain, mapfname=map_furban, datfname=mksrf_furban, &
          ndiag=ndiag, zero_out=all_veg, urbn_o=pcturb, urbn_classes_o=urbn_classes, &
          region_o=urban_region)
-
+    !write(*,*) 'finish mkurban'
+    
     ! Make elevation [elev] from [ftopo, ffrac] dataset
     ! Used only to screen pcturb  
     ! Screen pcturb by elevation threshold from elev dataset
@@ -664,7 +678,7 @@ program mksurfdat
        end where
        deallocate(elev)
     end if
-    
+
     ! Compute topography statistics [topo_stddev, slope] from [ftopostats]
     call mktopostats (ldomain, mapfname=map_ftopostats, datfname=mksrf_ftopostats, &
          ndiag=ndiag, topo_stddev_o=topo_stddev, slope_o=slope, std_elev=std_elev)
@@ -678,6 +692,16 @@ program mksurfdat
     ! Make lake depth [lakedepth] from [flakwat]
     call mklakparams (ldomain, mapfname=map_flakwat, datfname=mksrf_flakwat, ndiag=ndiag, &
          lakedepth_o=lakedepth)
+
+    !======revised Tianyi Hu======
+    !if (all_veg) then
+    !lakedepth = 10
+    !write(*,*) "set lakedepth to ", lakedepth
+    !else
+    !  call mklakparams (ldomain, mapfname=map_flakwat, datfname=mksrf_flakwat, ndiag=ndiag, &
+    !     lakedepth_o=lakedepth)
+    !end if
+    !=============================
 
     ! Make organic matter density [organic] [forganic]
     allocate (organic(ns_o,nlevsoi))
@@ -808,6 +832,7 @@ program mksurfdat
 
     pctglcmec(:,:)          = spval
     topoglcmec(:,:)         = spval
+    write (6,*) "output 3D glacier?=", outnc_3dglc
 
     if ( outnc_3dglc )then
        call mkglcmec (ldomain, mapfname=map_fglacier, &
@@ -819,6 +844,21 @@ program mksurfdat
        call mkglcmec (ldomain, mapfname=map_fglacier, &
             datfname_fglacier=mksrf_fglacier, ndiag=ndiag, &
             pctglcmec_o=pctglcmec, topoglcmec_o=topoglcmec )
+       
+       !=========Revised Tianyi Hu=========
+       !write (6,*) "size of pctglcmec: ", size(pctglcmec,1), size(pctglcmec,2)
+       !if (all_veg) then
+       !    pctglcmec  = reshape([100.,0.,0.,0.,0.,0.,0.,0.,0.,0.],[size(pctglcmec,1), size(pctglcmec,2)])
+       !    topoglcmec = &
+       !    reshape( [100.,300.,550.,850.,1150.,1450.,1800.,2250.,2750.,3500.], &
+       !             [size(pctglcmec,1), size(pctglcmec,2)] )
+       !else
+       !    call mkglcmec (ldomain, mapfname=map_fglacier, &
+       !         datfname_fglacier=mksrf_fglacier, ndiag=ndiag, &
+       !         pctglcmec_o=pctglcmec, topoglcmec_o=topoglcmec )
+       !end if
+       !====================================
+ 
     end if
 
     ! Determine fractional land from pft dataset
@@ -1079,6 +1119,10 @@ program mksurfdat
 
     call harvdata%clean()
 
+    !==== Tianyi Hu ====
+    !call harvdata%clean()
+    !===================
+
     ! ----------------------------------------------------------------------
     ! Create dynamic land use dataset if appropriate
     ! ----------------------------------------------------------------------
@@ -1090,11 +1134,17 @@ program mksurfdat
        allocate(pctlnd_pft_dyn(ns_o))
        call mkharvest_init( ns_o, spval, harvdata, mksrf_fhrvtyp )
 
+       !==== Tianyi Hu ====
+       !write(*,*) "mksrf_fhrvtyp= ", mksrf_fhrvtyp
+       !call mkharvest_init( ns_o, spval, harvdata, mksrf_fhrvtyp )
+       !=====Tianyi Hu ====
+       !call mkpftInit( zero_out_l=all_urban, all_veg_l=all_veg )
+       !write(*,*) 'pft Initialize'
+       !===================
        if (fdyndat == ' ') then
           write(6,*)' must specify fdyndat in namelist if mksrf_fdynuse is not blank'
           stop
        end if
-
        ! Define dimensions and global attributes
 
        call mkfile(ldomain, fdyndat, harvdata, dynlanduse=.true.)
@@ -1134,9 +1184,19 @@ program mksurfdat
        ntim = 0
        do 
           ! Read input pft data
-
-          read(nfdyn, '(A195,1x,I4)', iostat=ier) string, year
+          
+          !==== Tianyi Hu ====
+          read(nfdyn, '(A92,34x,I4)', iostat=ier) string, year
+          !read(nfdyn, '(A195,1x,I4)', iostat=ier) string, year
+          !=================== 
           if (ier /= 0) exit
+
+          !==== Tianyi Hu ====
+          write(6,*) ' all veg is ', all_veg
+          write(6,*) ' string =', trim(string), 'len is ', len(string)
+          write(6,*) ' year =', year
+          !===================
+
           !
           ! If pft fraction override is set, than intrepret string as PFT and harvesting override values
           !
@@ -1147,13 +1207,21 @@ program mksurfdat
              call mkharvest_parse_oride(string)
 	     write(6, '(a, i4, a)') 'PFT and harvesting values for year ', year, ' :'
              write(6, '(a, a)') '    ', trim(string)
+
+             !==== Tianyi Hu ====
+             write(6,*) 'new pft fract is ', pft_idx, pft_frc
+             !call mkharvest_parse_oride(string)
+             !===================
           !
           ! Otherwise intrepret string as a filename with PFT and harvesting values in it
           !
           else
              fname = string
 	     write(6,*)'input pft dynamic dataset for year ', year, ' is : ', trim(fname)
-             read(nfdyn, '(A195,1x,I4)', iostat=ier) fhrvname, year2
+             !==== Tianyi Hu ====
+             read(nfdyn, '(A92,34x,I4)', iostat=ier) fhrvname, year2
+             !read(nfdyn, '(A195,1x,I4)', iostat=ier) fhrvname, year2
+             !==================
              if ( year2 /= year ) then
                 write(6,*) subname, ' error: year for harvest not equal to year for PFT files'
                 call abort()
@@ -1161,18 +1229,30 @@ program mksurfdat
           end if
           ntim = ntim + 1
 
-          ! Create pctpft data at model resolution
+          !==== Tiayi Hu ====
+          ! Maybe need to init again
+          !call mkpftInit( zero_out_l=all_urban, all_veg_l=all_veg )
+          !write(*,*) 'pft Initialize'
+          !==================
           
+          ! Create pctpft data at model resolution
+                
           call mkpft(ldomain, mapfname=map_fpft, fpft=fname, &
                ndiag=ndiag, pctlnd_o=pctlnd_pft_dyn, pctnatpft_o=pctnatpft, pctcft_o=pctcft )
-
+          
           ! Create harvesting data at model resolution
-
+          !==== Tianyi Hu  ====
+          ! Need to comment it out
           call mkharvest( ldomain, mapfname=map_fharvest, datfname=fhrvname, &
                ndiag=ndiag, harvdata=harvdata )
-
+          !===================
           ! Consistency check on input land fraction
 
+          !==== Tianyi ====
+          write(6,*)'pctlnd_o ', pctlnd_pft_dyn
+          !write(6,*)'pctnatpft_o ', pctnatpft
+          !write(6,*)'pctcft_o ', pctcft
+          !================
           do n = 1,ns_o
              if (pctlnd_pft_dyn(n) /= pctlnd_pft(n)) then
                 write(6,*) subname,' error: pctlnd_pft for dynamics data = ',&
@@ -1195,10 +1275,14 @@ program mksurfdat
           call update_max_array(pctcft_max,pctcft)
 
           ! Output time-varying data for current year
-
+          !==== Tianyi Hu ====
+          !write(6,*) 'pctnatpft is ', pctnatpft
+          !===================
           call check_ret(nf_inq_varid(ncid, 'PCT_NAT_PFT', varid), subname)
-          call ncd_put_time_slice(ncid, varid, ntim, get_pct_p2l_array(pctnatpft))
-
+          call ncd_put_time_slice(ncid, varid, ntim, get_pct_p2l_array(pctnatpft))          
+          !==== Tianyi Hu ====
+          !write(6,*) 'pctcft is ', pctcft
+          !===================
           call check_ret(nf_inq_varid(ncid, 'PCT_CROP', varid), subname)
           call ncd_put_time_slice(ncid, varid, ntim, get_pct_l2g_array(pctcft))
 
@@ -1562,7 +1646,7 @@ subroutine normalizencheck_landuse(ldomain)
     end do
 
     ! Check that when pctnatveg+pctcrop identically zero, sum of special landunits is identically 100%
-
+    
     if ( .not. outnc_double )then
        do n = 1,ns_o
           sum8  =         real(pctlak(n),r4)
@@ -1592,7 +1676,7 @@ subroutine normalizencheck_landuse(ldomain)
              write (6,*) subname, ' error: sum of pctlak, pctwet,', &
                   'pcturb, pctgla is < 100% when pctnatveg+pctcrop==0 sum = ', sum8
              write (6,*) 'Total error, error/epsilon = ',100._r8-sum8, ((100._r8-sum8)/epsilon(sum8))
-             write (6,*)'n,pctlak,pctwet,pcturb,pctgla,pctnatveg,pctcrop,epsilon= ', &
+             write(6,*)'n,pctlak,pctwet,pcturb,pctgla,pctnatveg,pctcrop,epsilon= ', &
                   n,pctlak(n),pctwet(n),pcturb(n),pctgla(n),&
                   pctnatpft(n)%get_pct_l2g(),pctcft(n)%get_pct_l2g(), epsilon(sum8)
              call abort()

@@ -24,6 +24,8 @@ module mkharvestMod
 
   public :: harvestDataType
   integer, private, parameter :: numharv =  9  ! number of harvest and grazing fields
+!==== Tianyi Hu ====
+  !integer, private, parameter :: numharv =  6  ! number of harvest and grazing fields
 
   type :: harvestDataType
      private
@@ -1077,6 +1079,11 @@ subroutine mkharvest_parse_oride( string )
      write(6,*) subname//'Trouble finding harvest start end tags'
      call abort()
   end if
+  !==== Tianyi Hu ====
+  write(6,*) "Harvest Mod test what's going wrong? index is ", numharv, & 
+             " oride_harv is ", oride_harv(1:numharv-1)
+  write(6,*) "The substring = ", substring
+  !===================
   read(substring,*) oride_harv(1:numharv-1)
   call shr_string_betweenTags( string, graz_start, graz_end, substring, rc )
   if ( rc /= 0 )then

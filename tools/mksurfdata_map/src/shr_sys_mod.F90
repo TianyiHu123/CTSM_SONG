@@ -184,12 +184,14 @@ SUBROUTINE shr_sys_getenv(name, val, rcode)
 !-------------------------------------------------------------------------------
 
    lenname=len_trim(name)
+!=========================================================
+!Revised by Yang Song for UA-ocelote machine
+!=========================================================
+!#if (defined IRIX64 || defined CRAY || defined UNICOSMP)
 
-#if (defined IRIX64 || defined CRAY || defined UNICOSMP)
+!   call pxfgetenv(name, lenname, val, lenval, rcode)
 
-   call pxfgetenv(name, lenname, val, lenval, rcode)
-
-#elif (defined AIX || defined OSF1 || defined SUNOS || defined LINUX || defined NEC_SX)
+!#elif (defined AIX || defined OSF1 || defined SUNOS || defined LINUX || defined NEC_SX)
 
    call getenv(trim(name),tmpval)
    val=trim(tmpval)
@@ -197,12 +199,12 @@ SUBROUTINE shr_sys_getenv(name, val, rcode)
    if (len_trim(val) ==  0         ) rcode = 1
    if (len_trim(val) >  SHR_KIND_CL) rcode = 2
 
-#else
+!#else
 
-   write(s_logunit,F00) 'ERROR: no implementation of getenv for this architecture'
-   call shr_sys_abort(subname//'no implementation of getenv for this machine')
+!   write(s_logunit,F00) 'ERROR: no implementation of getenv for this architecture'
+!   call shr_sys_abort(subname//'no implementation of getenv for this machine')
 
-#endif
+!#endif
 
 END SUBROUTINE shr_sys_getenv
 
@@ -341,7 +343,6 @@ SUBROUTINE shr_sys_flush(unit)
 #else
 
    if (s_loglev > 0) write(s_logunit,F00) 'WARNING: no implementation of flush for this architecture'
-
 #endif
 
 END SUBROUTINE shr_sys_flush

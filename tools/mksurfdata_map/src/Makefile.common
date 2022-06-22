@@ -246,9 +246,20 @@ ifeq ($(UNAMES),Linux)
       FCTYP := $(USER_FC)
     endif
   endif
+  #===========================
+  #add by Yang Song
+  ifeq ($(USER_FC),gfortran)
+   FC    := $(USER_FC)
+   FCTYP := $(USER_FCTYP) 
+  endif
+  ifeq ($(USER_CC),$(null))
+    CC := gcc
+  endif
+  #============================
   CPPDEF += -DLINUX -DFORTRANUNDERSCORE
   CFLAGS := $(CPPDEF)
-  LDFLAGS := $(shell $(LIB_NETCDF)/../bin/nf-config --flibs)
+  #LDFLAGS := $(shell $(LIB_NETCDF)/../bin/nf-config --flibs)
+  LDFLAGS := -L$(NETCDF_FORTRAN_PATH)/lib -lnetcdff -L$(NETCDF_C_PATH)/lib -lnetcdf
   FFLAGS =
 
   ifeq ($(FCTYP),pgf90)
@@ -314,6 +325,28 @@ ifeq ($(UNAMES),Linux)
   endif
   FFLAGS += -c -I$(INC_NETCDF) $(CPPDEF) $(cpp_path)
   CFLAGS += $(cpp_path)
+  #=============================================================
+  # add by Yang Song
+  #============================================================= 
+  ifeq ($(USER_FCTYP),gfortran)
+   CPPDEF := -DCESMCOUPLED -DFORTRANUNDERSCORE -DNO_R16 -DCPRGNU
+   CFLAGS :=  -std=gnu99
+   FFLAGS :=   -fconvert=big-endian -ffree-line-length-none -ffixed-line-length-none 
+
+   CPPDEFS := $(CPPDEFS)  -DFORTRANUNDERSCORE -DNO_R16 -DCPRGNU
+    
+   ifeq ($(SMP),TRUE)
+     CFLAGS := $(CFLAGS)  -fopenmp
+     FFLAGS := $(FFLAGS)  -fopenmp
+     LDFLAGS := $(LDFLAGS)  -fopenmp
+   endif
+   #FFLAGS += -c -I$(INC_NETCDF) $(CPPDEFS) $(cpp_path)
+   #CFLAGS += $(cpp_path) 
+   FFLAGS   := -c -fno-second-underscore $(CPPDEF) $(cpp_path) -I$(MOD_NETCDF) \
+               -fno-range-check
+   CFLAGS  += $(CPPDEF) $(cpp_path)
+   #LDFLAGS += -L$(LIB_NETCDF) -lnetcdf -lnetcdff
+  endif
 endif
 
 #------------------------------------------------------------------------
@@ -356,5 +389,5 @@ $(EXENAME): $(OBJS)
 
 clean:
 	$(RM) -f $(OBJS) *.mod Depends
-
+  
 include $(CURDIR)/Depends

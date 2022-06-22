@@ -523,7 +523,7 @@ subroutine mkpft(ldomain, mapfname, fpft, ndiag, &
 
   ! If total vegetation cover is prescribed from input...
   if ( use_input_pft .and. presc_cover ) then
-
+     
      do no = 1,ns_o
         pctlnd_o(no)    = 100._r8
         pctnatveg_o(no) = pft_override%natveg
@@ -609,6 +609,10 @@ subroutine mkpft(ldomain, mapfname, fpft, ndiag, &
   !
   ! If specific PFT/CFT's are prescribed set them directly
   !
+  !==== Tianyi Hu ====
+  write(6,*) 'Pft_override pft is ', pft_override%natpft(:)
+  write(6,*) 'Pft_override cft is ', pft_override%cft(:)
+  !===================
   if ( use_input_pft )then
      do no = 1,ns_o
         if (pctlnd_o(no) > 1.0e-6 .and. pctnatveg_o(no) > 1.0e-6) then
@@ -623,12 +627,21 @@ subroutine mkpft(ldomain, mapfname, fpft, ndiag, &
            pct_cft_o(no,1)  = 100._r8
            pct_cft_o(no,2:) = 0._r8
         end if
+        !==== Tianyi Hu Modified for rainman site====
         pctpft_o(no,natpft_lb:natpft_ub)   = pct_nat_pft_o(no,0:num_natpft)
         pctpft_o(no,cft_lb:cft_ub)         = pct_cft_o(no,1:num_cft)
+        !pctpft_o(no,0:14) = pct_nat_pft_o(no,0:14)
+        !pctpft_o(no,15:16) = pct_cft_o(no,1:2)
+        !pctpft_o(no,17:18) = pct_nat_pft_o(no,15:16)
+        !============================================
      end do
   end if
-
-
+  !==== Tianyi Hu ====
+  write(6,*) '=========================================='
+  write(6,*) 'In mkpftMod '
+  write(6,*) 'pctpft_o is ', pctpft_o(no,:)
+  write(6,*) '=========================================='
+  !===================
   ! Error check: percents should sum to 100 for land grid cells, within roundoff
   ! Also correct sums so that if they differ slightly from 100, they are corrected to
   ! equal 100 more exactly.
@@ -673,6 +686,12 @@ subroutine mkpft(ldomain, mapfname, fpft, ndiag, &
   ! Convert % pft as % of grid cell to % pft on the landunit and % of landunit on the
   ! grid cell
   do no = 1,ns_o
+     !==== Tianyi Hu Rainman ====
+     !pctnatpft_o(no) = pct_pft_type( pct_nat_pft_o(no,:), pctnatveg_o(no),first_pft_index=natpft_lb ) + &
+     !                  pct_pft_type( pct_nat_pft_o(no,:), pctnatveg_o(no),first_pft_index=natpft_lb)
+     !pctcft_o(no)    = pct_pft_type( pct_cft_o(no,:), pctcrop_o(no), first_pft_index=cft_lb    ) + &
+     !                  pct_pft_type( pct_cft_o(no,:), pctcrop_o(no), first_pft_index=cft_lb    )
+     !===========================
      pctnatpft_o(no) = pct_pft_type( pct_nat_pft_o(no,:), pctnatveg_o(no), first_pft_index=natpft_lb )
      pctcft_o(no)    = pct_pft_type( pct_cft_o(no,:),     pctcrop_o(no),   first_pft_index=cft_lb    )
   end do
@@ -829,6 +848,10 @@ subroutine mkpft_parse_oride( string )
   end if
   num_elms = shr_string_countChar( substring, ",", rc )
   read(substring,*) pft_frc(0:num_elms)
+  !==== Tianyi Hu ====
+  !write(6,*) 'substring1 is ', substring
+  write(6,*) 'pftfrc is ', pft_frc
+  !===================
   call shr_string_betweenTags( string, idx_start, idx_end, substring, rc )
   if ( rc /= 0 )then
      write(6,*) subname//'Trouble finding pft_index start end tags'
@@ -841,6 +864,10 @@ subroutine mkpft_parse_oride( string )
      return
   end if
   read(substring,*) pft_idx(0:num_elms)
+  !==== Tianyi Hu ====
+  !write(6,*) 'substring2 is ', substring
+  write(6,*) 'pftidx is ', pft_idx
+  !===================
 !-----------------------------------------------------------------------
 
 end subroutine mkpft_parse_oride

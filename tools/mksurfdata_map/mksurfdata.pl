@@ -47,7 +47,7 @@ my $nldef_file     = "$scrdir/../../bld/namelist_files/namelist_definition_ctsm.
 
 my $definition = Build::NamelistDefinition->new( $nldef_file );
 
-my $CSMDATA = "/glade/p/cesm/cseg/inputdata";
+my $CSMDATA = "/xdisk/chopinsong/chopinsong/CTSM_inputdata";  #revised by Yang Song #"/glade/p/cesm/cseg/inputdata";
 
 my %opts = ( 
                hgrid=>"all", 
@@ -66,8 +66,9 @@ my %opts = (
                inlandwet=>undef,
                help=>0,
                no_surfdata=>0,
-               pft_override=>undef,
-               pft_frc=>undef,
+#               pft_override=>undef,
+               pft_override=>1,
+	       pft_frc=>undef,
                pft_idx=>undef,
                soil_override=>undef,
                soil_cly=>undef,
@@ -598,9 +599,15 @@ EOF
    system( "\rm -f $cfile" );
    system( "touch $cfile" );
    print $cfh <<"EOF";
-#! /bin/csh -f
-set CSMDATA = $CSMDATA
+ #! /bin/bash
+ #export CSMDATA = $CSMDATA
 EOF
+ 
+#========changed from tsh to bash by Yang Song for UA-ocelote========
+##! /bin/csh -f
+##set CSMDATA = $CSMDATA
+#====================================================================
+ 
    system( "chmod +x $cfile" );
    my $surfdir = "lnd/clm2/surfdata";
 
@@ -663,7 +670,8 @@ EOF
          }
          $hgrid = trim($hgrid);
          my $filnm = `$scrdir/../../bld/queryDefaultNamelist.pl $mopts -options type=$typ -var mksrf_filename`;
-         $filnm = trim($filnm);
+#         print "mopts = $mopts, typ = $typ, filnm = $filnm \n\n"
+	 $filnm = trim($filnm);
          $filnm{$typ} = $filnm;
          $hgrd{$typ}  = $hgrid;
          $lmsk{$typ}  = $lmask;

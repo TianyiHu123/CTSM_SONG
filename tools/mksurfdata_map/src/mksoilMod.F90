@@ -361,6 +361,17 @@ subroutine mksoiltex(ldomain, mapfname, datfname, ndiag, sand_o, clay_o)
            sand_o(no,l) = soil_sand
            clay_o(no,l) = soil_clay
         end do
+
+     !==== Added by Tianyi Hu with Rainman soil texture ====
+     !
+     !   sand_o(no,1:6) = [71.1636,71.0324,70.8199,70.4695,69.892,68.9399]!, &
+     !                            ![1,6])
+     !   clay_o(no,1:6) = [13.4933,13.6062,13.7793,14.0647,14.5351,15.3105]!, &
+     !                            ![1,6])
+     !   write(6,*)'sand is ', sand_o(:,:)
+     !   write(6,*)'clay is ', clay_o(:,:)
+     !======================================================
+
      else if (k1 /= 0) then           !---not 'no data'
         do l = 1, nlay
            sand_o(no,l) = sand_i(k1,l)

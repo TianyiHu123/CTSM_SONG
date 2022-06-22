@@ -39,7 +39,7 @@ default_res="10x15"
 # SET SOME DEFAULTS -- if not set via env variables outside
 
 if [ -z "$CSMDATA" ]; then
-   CSMDATA=/glade/p/cesm/cseg/inputdata
+   CSMDATA=/xdisk/chopinsong/chopinsong/CTSM_inputdata #/glade/p/cesm/cseg/inputdata revised by Yang Song
 fi
 #----------------------------------------------------------------------
 # Usage subroutine
@@ -102,6 +102,7 @@ usage() {
 
 runcmd() {
    cmd=$@
+   echo "runcmd=$cmd"
    if [ -z "$cmd" ]; then
        echo "No command given to the runcmd function"
        exit 3
@@ -267,19 +268,15 @@ if [ "$phys" = "clm4_5" ]; then
            "0.25x0.25_MODIS"   \
            "0.5x0.5_MODIS"     \
            "3x3min_LandScan2004" \
-           "3x3min_MODIS-wCsp" \
            "3x3min_USGS"       \
            "5x5min_nomask"     \
            "5x5min_IGBP-GSDP"  \
            "5x5min_ISRIC-WISE" \
            "5x5min_ORNL-Soil" \
-           "10x10min_nomask"   \
-           "10x10min_IGBPmergeICESatGIS" \
-           "3x3min_GLOBE-Gardner" \
-           "3x3min_GLOBE-Gardner-mergeGIS" \
            "0.9x1.25_GRDC" \
            "360x720cru_cruncep" \
            "1km-merge-10min_HYDRO1K-merge-nomask" \
+           "128x256_nomask"
           )
 
 else
@@ -303,9 +300,10 @@ do
 
    QUERYFIL="$QUERY -var scripgriddata $QUERYARGS -onlyfiles"
    if [ "$verbose" = "YES" ]; then
-      echo $QUERYFIL
+      echo "QUERYARGS=$QUERYFIL"
    fi
    INGRID[nfile]=`$QUERYFIL`
+   echo "INGRID=`$QUERYFIL`"
    if [ "$list" = "YES" ]; then
       echo "ingrid = ${INGRID[nfile]}"
       echo "ingrid = ${INGRID[nfile]}" >> $outfilelist
@@ -336,6 +334,66 @@ if [ -n "$NERSC_HOST" ]; then
 fi
 echo "Hostname = $hostname"
 case $hostname in
+  #==============================
+  ##UA-ocelote !add by Yang Song
+  #==============================
+  #login[0-9]* | r*) !login node for non-batch running
+#  $hostname | r*) #HPC node for batch running
+#  echo "UA-ocelote test"
+#  . /cm/local/apps/environment-modules/4.0.0/Modules/init/sh
+#  if [ -z "$REGRID_PROC" ]; then
+#     REGRID_PROC=28
+#  fi
+#  if [[ $REGRID_PROC > 1 ]]; then
+#        mpi=openmpi
+#  else
+#        mpi=uni
+#  fi
+#  echo "REGRID_PROC=$REGRID_PROC"
+#  export ESMFMKFILE=/home/u22/chopinsong/esmf/DEFAULTINSTALLDIR/lib/libg/Linux.gfortran.64.openmpi.default/esmf.mk
+#  echo "ESMFMKFILE=$ESMFMKFILE"
+#  export ESMFBIN_PATH=/home/u22/chopinsong/esmf/DEFAULTINSTALLDIR/bin
+#  echo "ESMF_NETCDF=$ESMF_NETCDF" 
+# 
+#  if [ -z "$ESMFBIN_PATH" ]; then
+#     ESMFBIN_PATH=/home/u22/chopinsong/esmf/DEFAULTINSTALLDIR/bin
+#     echo "ESMFBIN_PATH DEFINE=$ESMFBION_PATH"
+#  fi
+#  if [ -z "$MPIEXEC" ]; then
+#     #MPIEXEC="mpiexec_mpt -np $REGRID_PROC"
+#     MPIEXEC="mpirun -np $REGRID_PROC"
+#     echo "MPIEXEC define=$MPIEXEC"
+#  fi
+#  ;;  
+  ##puma 
+  $hostname | r*) #HPC node for batch running
+  echo "UA-puma test"
+  . /usr/bin/sh 
+  if [ -z "$REGRID_PROC" ]; then
+     REGRID_PROC=28
+  fi
+  if [[ $REGRID_PROC > 1 ]]; then
+        mpi=openmpi
+  else
+        mpi=uni
+  fi
+  echo "REGRID_PROC=$REGRID_PROC"
+  export ESMFMKFILE=/home/u32/tianyihu/app/esmf/DEFAULTINSTALLDIR/lib/libg/Linux.gfortran.64.openmpi.default/esmf.mk
+  echo "ESMFMKFILE=$ESMFMKFILE"
+  export ESMFBIN_PATH=/home/u32/tianyihu/app/esmf/DEFAULTINSTALLDIR/bin
+  echo "ESMF_NETCDF=$ESMF_NETCDF" 
+ 
+  if [ -z "$ESMFBIN_PATH" ]; then
+     ESMFBIN_PATH=/home/u32/tianyihu/app/esmf/DEFAULTINSTALLDIR/bin
+     echo "ESMFBIN_PATH DEFINE=$ESMFBION_PATH"
+  fi
+  if [ -z "$MPIEXEC" ]; then
+     #MPIEXEC="mpiexec_mpt -np $REGRID_PROC"
+     MPIEXEC="mpirun -np $REGRID_PROC"
+     echo "MPIEXEC define=$MPIEXEC"
+  fi
+  ;;
+  
   ##cheyenne
   cheyenne* | r* )
   . /glade/u/apps/ch/opt/lmod/7.2.1/lmod/lmod/init/bash
@@ -435,6 +493,7 @@ fi
 # batch file that calls this script interactively - you cannot submit
 # this script to the batch system
 
+interactive="NO" #add by Yang Song
 if [ "$interactive" = "NO" ]; then
    echo "Running in batch mode using MPI"
    if [ -z "$MPIEXEC" ]; then
@@ -450,10 +509,12 @@ if [ "$interactive" = "NO" ]; then
    mpirun=$MPIEXEC
    echo "Running in batch mode"
 else
-   mpirun=""
+  mpirun=""
 fi
-  
-ESMF_REGRID="$ESMFBIN_PATH/ESMF_RegridWeightGen"
+
+#revised by Yang Song 
+ESMF_REGRID="$ESMFBIN_PATH/bing/Linux.gfortran.64.openmpi.default/ESMF_RegridWeightGen"
+echo "esmf_regrid: $ESMF_REGRID"
 if [ ! -x "$ESMF_REGRID" ]; then
     echo "ESMF_RegridWeightGen does NOT exist in ESMF binary directory: $ESMFBIN_PATH\n"
     echo "Upgrade to a newer version of ESMF with this utility included"
@@ -504,7 +565,7 @@ until ((nfile>${#INGRID[*]})); do
        echo "SRC_LRGFIL = ${SRC_LRGFIL[nfile]}"
        exit 4
    fi
-
+   echo "LRGFIL=$lrgfil"
    # Skip if file already exists
    if [ -f "${OUTFILE[nfile]}" ]; then
       echo "Skipping creation of ${OUTFILE[nfile]} as already exists"
@@ -514,16 +575,19 @@ until ((nfile>${#INGRID[*]})); do
    else
 
       cmd="$mpirun $ESMF_REGRID --ignore_unmapped -s ${INGRID[nfile]} "
+    echo $cmd
+    echo "output cmd"
       cmd="$cmd -d $GRIDFILE -m conserve -w ${OUTFILE[nfile]}"
       if [ $type = "regional" ]; then
         cmd="$cmd --dst_regional"
       fi
-
+    echo "output2=$cmd"
       cmd="$cmd --src_type ${SRC_TYPE[nfile]} ${SRC_EXTRA_ARGS[nfile]} --dst_type $DST_TYPE $DST_EXTRA_ARGS"
       cmd="$cmd $lrgfil"
-
+    echo "output3=$cmd"
+    echo cmd
       runcmd $cmd
-
+    echo "runcmd"
       if [ "$debug" != "YES" ] && [ ! -f "${OUTFILE[nfile]}" ]; then
          echo "Output mapping file was NOT created: ${OUTFILE[nfile]}"
          exit 6
