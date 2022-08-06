@@ -1186,8 +1186,8 @@ program mksurfdat
           ! Read input pft data
           
           !==== Tianyi Hu ====
-          read(nfdyn, '(A92,34x,I4)', iostat=ier) string, year
-          !read(nfdyn, '(A195,1x,I4)', iostat=ier) string, year
+          !read(nfdyn, '(A92,34x,I4)', iostat=ier) string, year
+          read(nfdyn, '(A195,1x,I4)', iostat=ier) string, year
           !=================== 
           if (ier /= 0) exit
 
@@ -1219,8 +1219,8 @@ program mksurfdat
              fname = string
 	     write(6,*)'input pft dynamic dataset for year ', year, ' is : ', trim(fname)
              !==== Tianyi Hu ====
-             read(nfdyn, '(A92,34x,I4)', iostat=ier) fhrvname, year2
-             !read(nfdyn, '(A195,1x,I4)', iostat=ier) fhrvname, year2
+             !read(nfdyn, '(A92,34x,I4)', iostat=ier) fhrvname, year2
+             read(nfdyn, '(A195,1x,I4)', iostat=ier) fhrvname, year2
              !==================
              if ( year2 /= year ) then
                 write(6,*) subname, ' error: year for harvest not equal to year for PFT files'
@@ -1250,8 +1250,6 @@ program mksurfdat
 
           !==== Tianyi ====
           write(6,*)'pctlnd_o ', pctlnd_pft_dyn
-          !write(6,*)'pctnatpft_o ', pctnatpft
-          !write(6,*)'pctcft_o ', pctcft
           !================
           do n = 1,ns_o
              if (pctlnd_pft_dyn(n) /= pctlnd_pft(n)) then

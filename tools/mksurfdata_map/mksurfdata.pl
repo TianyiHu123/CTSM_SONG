@@ -66,8 +66,8 @@ my %opts = (
                inlandwet=>undef,
                help=>0,
                no_surfdata=>0,
-#               pft_override=>undef,
-               pft_override=>1,
+               pft_override=>undef,
+               #pft_override=>1,
 	       pft_frc=>undef,
                pft_idx=>undef,
                soil_override=>undef,
@@ -599,8 +599,8 @@ EOF
    system( "\rm -f $cfile" );
    system( "touch $cfile" );
    print $cfh <<"EOF";
- #! /bin/bash
- #export CSMDATA = $CSMDATA
+##! /bin/bash
+#export CSMDATA = $CSMDATA
 EOF
  
 #========changed from tsh to bash by Yang Song for UA-ocelote========
@@ -665,16 +665,18 @@ EOF
          $lmask = trim($lmask);
          my $hgrid_cmd = "$scrdir/../../bld/queryDefaultNamelist.pl $mopts -options type=$typ,hirespft=$hirespft -var hgrid";
          my $hgrid = `$hgrid_cmd`;
+         print "hgrid_test:$typ,$lmask,$hgrid,$mopts,$typ \n";
          if ($debug) {
            print "query to determine hgrid:\n    $hgrid_cmd \n\n";
          }
          $hgrid = trim($hgrid);
          my $filnm = `$scrdir/../../bld/queryDefaultNamelist.pl $mopts -options type=$typ -var mksrf_filename`;
-#         print "mopts = $mopts, typ = $typ, filnm = $filnm \n\n"
+         #print "mopts = $mopts, typ = $typ, filnm = $filnm \n\n"
 	 $filnm = trim($filnm);
          $filnm{$typ} = $filnm;
          $hgrd{$typ}  = $hgrid;
          $lmsk{$typ}  = $lmask;
+         print "filnm_test:$filnm \n";
 	 if ( $opts{'hgrid'} eq "usrspec" ) {
 	     $map{$typ} = $opts{'usr_mapdir'}."/map_${hgrid}_${lmask}_to_${res}_nomask_aave_da_c${mapdate}\.nc";
 	 } else {

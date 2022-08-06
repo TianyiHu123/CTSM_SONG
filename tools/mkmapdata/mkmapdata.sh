@@ -213,6 +213,7 @@ if [ "$gridfile" != "default" ]; then
 else
     if [ "$res" = "default" ]; then
        res=$default_res
+       echo "res=default_res is $res"
     fi
 
     QUERYARGS="-res $res -options lmask=nomask"
@@ -263,21 +264,25 @@ fi
 #----------------------------------------------------------------------
 
 if [ "$phys" = "clm4_5" ]; then
-    grids=(                    \
-           "0.5x0.5_AVHRR"     \
-           "0.25x0.25_MODIS"   \
-           "0.5x0.5_MODIS"     \
+    grids=(                    \   
+           "0.5x0.5_AVHRR"     \   
+           "0.25x0.25_MODIS"   \   
+           "0.5x0.5_MODIS"     \   
            "3x3min_LandScan2004" \
-           "3x3min_USGS"       \
-           "5x5min_nomask"     \
+           "3x3min_USGS"       \   
+           "5x5min_nomask"     \   
            "5x5min_IGBP-GSDP"  \
            "5x5min_ISRIC-WISE" \
            "5x5min_ORNL-Soil" \
            "0.9x1.25_GRDC" \
            "360x720cru_cruncep" \
            "1km-merge-10min_HYDRO1K-merge-nomask" \
-           "128x256_nomask"
-          )
+           "3x3min_MODIS-wCsp" \
+           "10x10min_nomask"   \   
+           "10x10min_IGBPmergeICESatGIS" \          
+           "3x3min_GLOBE-Gardner" \
+           "3x3min_GLOBE-Gardner-mergeGIS")    
+#           "128x256_nomask") #Add by Tianyi
 
 else
     echo "ERROR: Unknown value for phys: $phys"
@@ -314,11 +319,15 @@ do
    # Determine extra information about the source grid file
    SRC_EXTRA_ARGS[nfile]=""
    SRC_LRGFIL[nfile]=`$QUERY -var scripgriddata_lrgfile_needed $QUERYARGS`
+   echo "SRC_LRGFIL[nfile],${SRC_LRGFIL[nfile]}"
    SRC_TYPE[nfile]=`$QUERY -var scripgriddata_type $QUERYARGS`
+   echo "SRC_TYPE[nfile],${SRC_TYPE[nfile]}"
    if [ "${SRC_TYPE[nfile]}" = "UGRID" ]; then
        # For UGRID, we need extra information: the meshname variable
        src_meshname=`$QUERY -var scripgriddata_meshname $QUERYARGS`
        SRC_EXTRA_ARGS[nfile]="${SRC_EXTRA_ARGS[nfile]} --src_meshname $src_meshname"
+       echo "src_meshname,$src_meshname"
+       echo "SRC_EXTRA_ARGS[nfile],${SRC_EXTRA_ARGS[nfile]}"
    fi
 
    nfile=nfile+1
@@ -364,36 +373,36 @@ case $hostname in
 #     MPIEXEC="mpirun -np $REGRID_PROC"
 #     echo "MPIEXEC define=$MPIEXEC"
 #  fi
-#  ;;  
+#  ;;
+  
   ##puma 
-  $hostname | r*) #HPC node for batch running
+   wentletrap* | r* )
+    
   echo "UA-puma test"
-  . /usr/bin/sh 
+  . /opt/ohpc/admin/lmod/lmod/init/sh #revised by Yang Song 
   if [ -z "$REGRID_PROC" ]; then
      REGRID_PROC=28
-  fi
+  fi  
   if [[ $REGRID_PROC > 1 ]]; then
         mpi=openmpi
   else
         mpi=uni
-  fi
+  fi  
   echo "REGRID_PROC=$REGRID_PROC"
-  export ESMFMKFILE=/home/u32/tianyihu/app/esmf/DEFAULTINSTALLDIR/lib/libg/Linux.gfortran.64.openmpi.default/esmf.mk
+  export ESMFMKFILE=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/lib/libO/Linux.gfortran.64.openmpi.default/esmf.mk
   echo "ESMFMKFILE=$ESMFMKFILE"
-  export ESMFBIN_PATH=/home/u32/tianyihu/app/esmf/DEFAULTINSTALLDIR/bin
-  echo "ESMF_NETCDF=$ESMF_NETCDF" 
- 
+  export ESMFBIN_PATH=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/bin/binO
   if [ -z "$ESMFBIN_PATH" ]; then
-     ESMFBIN_PATH=/home/u32/tianyihu/app/esmf/DEFAULTINSTALLDIR/bin
+     ESMFBIN_PATH=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/bin/binO
      echo "ESMFBIN_PATH DEFINE=$ESMFBION_PATH"
-  fi
+  fi  
   if [ -z "$MPIEXEC" ]; then
-     #MPIEXEC="mpiexec_mpt -np $REGRID_PROC"
      MPIEXEC="mpirun -np $REGRID_PROC"
      echo "MPIEXEC define=$MPIEXEC"
-  fi
+  fi  
   ;;
-  
+
+ 
   ##cheyenne
   cheyenne* | r* )
   . /glade/u/apps/ch/opt/lmod/7.2.1/lmod/lmod/init/bash
@@ -513,7 +522,7 @@ else
 fi
 
 #revised by Yang Song 
-ESMF_REGRID="$ESMFBIN_PATH/bing/Linux.gfortran.64.openmpi.default/ESMF_RegridWeightGen"
+ESMF_REGRID="$ESMFBIN_PATH/Linux.gfortran.64.openmpi.default/ESMF_RegridWeightGen"
 echo "esmf_regrid: $ESMF_REGRID"
 if [ ! -x "$ESMF_REGRID" ]; then
     echo "ESMF_RegridWeightGen does NOT exist in ESMF binary directory: $ESMFBIN_PATH\n"

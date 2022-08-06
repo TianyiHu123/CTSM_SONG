@@ -388,6 +388,6 @@ $(EXENAME): $(OBJS)
 	$(LINKER) -o $@ $(OBJS) $(LDFLAGS)
 
 clean:
-	$(RM) -f $(OBJS) *.mod Depends
+	$(RM) -f $(OBJS) *.mod #Depends
   
 include $(CURDIR)/Depends

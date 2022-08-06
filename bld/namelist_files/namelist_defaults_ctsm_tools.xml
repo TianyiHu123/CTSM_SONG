@@ -305,7 +305,8 @@ attributes from the config_cache.xml file (with keys converted to upper-case).
 
 <!-- Glacier region ID -->
 <mksrf_fglacierregion hgrid="10x10min" lmask="nomask"
->lnd/clm2/rawdata/mksrf_glacier_3x3min_simyr2000.c120926.nc</mksrf_fglacierregion>
+>lnd/clm2/rawdata/mksrf_GlacierRegion_10x10min_nomask_c170616.nc</mksrf_fglacierregion>
+
 <!-- Tianyi -->
 <mksrf_fglacierregion hgrid="128x256" lmask="nomask"
 >lnd/clm2/rawdata/mksrf_GlacierRegion_10x10min_nomask_c170616.nc</mksrf_fglacierregion>
