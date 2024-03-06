@@ -123,6 +123,30 @@ If TRUE, square the organic fraction when it's used (as was done in CLM4.5)
 Otherwise use the fraction straight up              (the default for CLM5.0)
 </entry>
 
+<!--     Tianyi Hu added for dynamic B update       -->
+<entry id="B_profile_file" type="char*256" category="clm_physics"
+       group="clm_soilstate_inparm" valid_values="" >
+Pathway of B_profile
+</entry>
+<entry id="Watsat_profile_file" type="char*256" category="clm_physics"
+       group="clm_soilstate_inparm" valid_values="" >
+Pathway of Watsat_profile
+</entry>
+<entry id="Sucsat_profile_file" type="char*256" category="clm_physics"
+       group="clm_soilstate_inparm" valid_values="" >
+Pathway of Sucsat_profile
+</entry>
+<entry id="B_adjust_factor" type="real(99)" category="clm_physics"
+       group="clm_soilstate_inparm" valid_values="" >
+Adjust factor for Bsw
+</entry>
+<entry id="B_adjust_file" type="char*256" category="clm_physics"
+       group="clm_soilstate_inparm" valid_values="" >
+Pathway of hk_adjust file
+</entry>
+<!--                                                -->
+
+
 <entry id="soil_layerstruct_predefined" type="char*16" category="clm_physics"
        group="clm_inparm" valid_values="10SL_3.5m,23SL_3.5m,49SL_10m,20SL_8.5m,4SL_2m" >
 10SL_3.5m    = standard CLM4 and CLM4.5 version

@@ -40,7 +40,7 @@ begin
 ; subper = 1                    ; Subsampling period in years
 
 ; SPT (single point) EXAMPLE
-  caseid = "1x1_Rainman_dynallocSR2_final"
+  caseid = "1x1_US-UMB_spinup"
   username = "chopinsong"
   annual_hist = False
   region = "SPT"                 ; Global, Arctic, or SPT (single point)
@@ -50,7 +50,7 @@ begin
   do_plot = True
 ; do_plot = False
 ;=======================================================================;
-   data_dir = "/groups/chopinsong/CTSM_tianyi/Rainman_spinuptest/1x1_Rainman_dynallocSR2_final/run/"
+   data_dir = "/xdisk/chopinsong/pjneri/CTSM_patrick/US-UMB_Trial/CONTRL11/US-UMB/1x1_US-UMB_spinup/run/"
 ;  data_dir = "/groups/"+username+"/CTSM_projects/archive/"+caseid+"/lnd/hist/"
   if ( systemfunc("test -d "+data_dir+"; echo $?" ) .ne. 0 )then
      print( "Input directory does not exist or not found: "+data_dir );
