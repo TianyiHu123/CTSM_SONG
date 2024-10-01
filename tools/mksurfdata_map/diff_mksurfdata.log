@@ -1,0 +1,471 @@
+===================================================
+src
+===================================================
+===================================================
+CMakeLists.txt
+===================================================
+===================================================
+Filepath
+===================================================
+===================================================
+fileutils.F90
+===================================================
+===================================================
+Makefile
+===================================================
+===================================================
+Makefile.common
+===================================================
+===================================================
+mkagfirepkmonthMod.F90
+===================================================
+===================================================
+mkchecksMod.F90
+===================================================
+===================================================
+Mkdepends
+===================================================
+===================================================
+mkdiagnosticsMod.F90
+===================================================
+===================================================
+mkdomainMod.F90
+101c101
+<     write(6,*) 'Whats wrong here? Begin:' 
+---
+>     
+105c105
+<     write(6,*) '2'
+---
+>     
+115d114
+<     write(6,*) '3'
+119c118
+< 
+---
+>     
+125c124
+<     domain%area(:)     = nan
+---
+>     domain%area     = nan
+129c128
+< 
+---
+>     
+399c398
+<     
+---
+> 
+704c703
+< 
+---
+>       
+790c789
+<          call abort()
+---
+>        call abort()
+===================================================
+===================================================
+mkfileMod.F90
+===================================================
+===================================================
+mkgdpMod.F90
+===================================================
+===================================================
+mkglacierregionMod.F90
+===================================================
+===================================================
+mkglcmecMod.F90
+===================================================
+===================================================
+mkgridmapMod.F90
+===================================================
+===================================================
+mkharvestMod.F90
+27,28d26
+< !==== Tianyi Hu ====
+<   !integer, private, parameter :: numharv =  6  ! number of harvest and grazing fields
+1082,1086d1079
+<   !==== Tianyi Hu ====
+<   write(6,*) "Harvest Mod test what's going wrong? index is ", numharv, & 
+<              " oride_harv is ", oride_harv(1:numharv-1)
+<   write(6,*) "The substring = ", substring
+<   !===================
+===================================================
+===================================================
+mkindexmapMod.F90
+===================================================
+===================================================
+mklaiMod.F90
+===================================================
+===================================================
+mklanwatMod.F90
+===================================================
+===================================================
+mkncdio.F90
+===================================================
+===================================================
+mkpctPftTypeMod.F90
+===================================================
+===================================================
+mkpeatMod.F90
+===================================================
+===================================================
+mkpftConstantsMod.F90
+===================================================
+===================================================
+mkpftMod.F90
+526c526
+<      
+---
+> 
+612,615d611
+<   !==== Tianyi Hu ====
+<   write(6,*) 'Pft_override pft is ', pft_override%natpft(:)
+<   write(6,*) 'Pft_override cft is ', pft_override%cft(:)
+<   !===================
+630d625
+<         !==== Tianyi Hu Modified for rainman site====
+633,636d627
+<         !pctpft_o(no,0:14) = pct_nat_pft_o(no,0:14)
+<         !pctpft_o(no,15:16) = pct_cft_o(no,1:2)
+<         !pctpft_o(no,17:18) = pct_nat_pft_o(no,15:16)
+<         !============================================
+639,644c630,631
+<   !==== Tianyi Hu ====
+<   write(6,*) '=========================================='
+<   write(6,*) 'In mkpftMod '
+<   write(6,*) 'pctpft_o is ', pctpft_o(no,:)
+<   write(6,*) '=========================================='
+<   !===================
+---
+> 
+> 
+689,694d675
+<      !==== Tianyi Hu Rainman ====
+<      !pctnatpft_o(no) = pct_pft_type( pct_nat_pft_o(no,:), pctnatveg_o(no),first_pft_index=natpft_lb ) + &
+<      !                  pct_pft_type( pct_nat_pft_o(no,:), pctnatveg_o(no),first_pft_index=natpft_lb)
+<      !pctcft_o(no)    = pct_pft_type( pct_cft_o(no,:), pctcrop_o(no), first_pft_index=cft_lb    ) + &
+<      !                  pct_pft_type( pct_cft_o(no,:), pctcrop_o(no), first_pft_index=cft_lb    )
+<      !===========================
+851,854d831
+<   !==== Tianyi Hu ====
+<   !write(6,*) 'substring1 is ', substring
+<   write(6,*) 'pftfrc is ', pft_frc
+<   !===================
+867,870d843
+<   !==== Tianyi Hu ====
+<   !write(6,*) 'substring2 is ', substring
+<   write(6,*) 'pftidx is ', pft_idx
+<   !===================
+===================================================
+===================================================
+mkpftUtilsMod.F90
+===================================================
+===================================================
+mksoildepthMod.F90
+===================================================
+===================================================
+mksoilMod.F90
+364,374d363
+< 
+<      !==== Added by Tianyi Hu with Rainman soil texture ====
+<      !
+<      !   sand_o(no,1:6) = [71.1636,71.0324,70.8199,70.4695,69.892,68.9399]!, &
+<      !                            ![1,6])
+<      !   clay_o(no,1:6) = [13.4933,13.6062,13.7793,14.0647,14.5351,15.3105]!, &
+<      !                            ![1,6])
+<      !   write(6,*)'sand is ', sand_o(:,:)
+<      !   write(6,*)'clay is ', clay_o(:,:)
+<      !======================================================
+< 
+===================================================
+===================================================
+mksoilUtilsMod.F90
+===================================================
+===================================================
+mksurfdat.F90
+152,153c152,153
+< 	 mksrf_fgrid,              &	
+< 	 mksrf_gridtype,           &	
+---
+>          mksrf_fgrid,              &
+>          mksrf_gridtype,           &
+156c156
+< 	 mksrf_fsoitex,            &
+---
+>          mksrf_fsoitex,            &
+315,317d314
+<     !==== Tianyi Hu ====
+<     !all_veg           = .true.
+<     !===================
+387d383
+<     !--------Revised-------
+389d384
+<     write(*,*) 'Soil Initialize'
+391c386
+<     write(*,*) 'pft Initialize'
+---
+>     print*, "finish mkpftInit"
+394,398c389,392
+<     write(*,*) 'glc Initialize'
+<     call mkurbanInit (mksrf_furban)
+<     write(*,*) 'Urban Initialize'
+<     write(*,*) 'mksrf_furban= ', mksrf_furban
+<     !--------------------------------
+---
+>     print*,"finish mkglcmecInit"
+>     print*,"mksrf_furban=",mksrf_furban
+>     call mkurbanInit (mksrf_furban) !add test by Yang Song
+>     print*,"finish mkurbanInit"
+586a581
+>     print*, "mkharvest_data=",mksrf_fhrvtyp
+608,611c603,608
+<     ! revised by Yang Song for machine can't produce mapping files
+<     
+<     if (all_veg) then
+<     glacier_region = 0
+---
+>     !========revised by Yang Song for the machine that coult not mapping the
+>     !following high resolution data======================
+>     !mksrf_GlacierRegion_10x10min_nomask_c170616.nc
+>     !==========================================================
+>     if(all_veg)then
+>     glacier_region=0
+617d613
+<     
+655c651
+<     !write(*,*) 'start to mkurban'
+---
+>     print*, "mksrf_furban",map_furban,mksrf_furban
+659,660c655
+<     !write(*,*) 'finish mkurban'
+<     
+---
+> 
+672a668
+>       print*, "elevation",map_furbtopo,mksrf_furbtopo
+681c677
+< 
+---
+>     
+696,705d691
+<     !======revised Tianyi Hu======
+<     !if (all_veg) then
+<     !lakedepth = 10
+<     !write(*,*) "set lakedepth to ", lakedepth
+<     !else
+<     !  call mklakparams (ldomain, mapfname=map_flakwat, datfname=mksrf_flakwat, ndiag=ndiag, &
+<     !     lakedepth_o=lakedepth)
+<     !end if
+<     !=============================
+< 
+835d820
+<     write (6,*) "output 3D glacier?=", outnc_3dglc
+847,861d831
+<        
+<        !=========Revised Tianyi Hu=========
+<        !write (6,*) "size of pctglcmec: ", size(pctglcmec,1), size(pctglcmec,2)
+<        !if (all_veg) then
+<        !    pctglcmec  = reshape([100.,0.,0.,0.,0.,0.,0.,0.,0.,0.],[size(pctglcmec,1), size(pctglcmec,2)])
+<        !    topoglcmec = &
+<        !    reshape( [100.,300.,550.,850.,1150.,1450.,1800.,2250.,2750.,3500.], &
+<        !             [size(pctglcmec,1), size(pctglcmec,2)] )
+<        !else
+<        !    call mkglcmec (ldomain, mapfname=map_fglacier, &
+<        !         datfname_fglacier=mksrf_fglacier, ndiag=ndiag, &
+<        !         pctglcmec_o=pctglcmec, topoglcmec_o=topoglcmec )
+<        !end if
+<        !====================================
+<  
+1122,1125d1091
+<     !==== Tianyi Hu ====
+<     !call harvdata%clean()
+<     !===================
+< 
+1137,1143d1102
+<        !==== Tianyi Hu ====
+<        !write(*,*) "mksrf_fhrvtyp= ", mksrf_fhrvtyp
+<        !call mkharvest_init( ns_o, spval, harvdata, mksrf_fhrvtyp )
+<        !=====Tianyi Hu ====
+<        !call mkpftInit( zero_out_l=all_urban, all_veg_l=all_veg )
+<        !write(*,*) 'pft Initialize'
+<        !===================
+1147a1107
+> 
+1187,1189c1147
+<           
+<           !==== Tianyi Hu ====
+<           read(nfdyn, '(A92,34x,I4)', iostat=ier) string, year
+---
+>           !====Tianyi Hu=========== 
+1191c1149
+<           !=================== 
+---
+>            read(nfdyn, '(A92,34x,I4)', iostat=ier) string, year
+1193,1199d1150
+< 
+<           !==== Tianyi Hu ====
+<           write(6,*) ' all veg is ', all_veg
+<           write(6,*) ' string =', trim(string), 'len is ', len(string)
+<           write(6,*) ' year =', year
+<           !===================
+< 
+1210,1214d1160
+< 
+<              !==== Tianyi Hu ====
+<              write(6,*) 'new pft fract is ', pft_idx, pft_frc
+<              !call mkharvest_parse_oride(string)
+<              !===================
+1221,1222c1167,1168
+<              !==== Tianyi Hu ====
+<              read(nfdyn, '(A92,34x,I4)', iostat=ier) fhrvname, year2
+---
+>              !=====Tianyi Hu===============
+>              
+1224c1170,1171
+<              !==================
+---
+>               read(nfdyn, '(A92,34x,I4)', iostat=ier) fhrvname, year2
+>              !==============================
+1232,1237d1178
+<           !==== Tiayi Hu ====
+<           ! Maybe need to init again
+<           !call mkpftInit( zero_out_l=all_urban, all_veg_l=all_veg )
+<           !write(*,*) 'pft Initialize'
+<           !==================
+<           
+1239c1180
+<                 
+---
+>           
+1242c1183
+<           
+---
+> 
+1244,1245c1185
+<           !==== Tianyi Hu  ====
+<           ! Need to comment it out
+---
+> 
+1248c1188
+<           !===================
+---
+> 
+1251,1255d1190
+<           !==== Tianyi ====
+<           write(6,*)'pctlnd_o ', pctlnd_pft_dyn
+<           !write(6,*)'pctnatpft_o ', pctnatpft
+<           !write(6,*)'pctcft_o ', pctcft
+<           !================
+1278,1280c1213
+<           !==== Tianyi Hu ====
+<           !write(6,*) 'pctnatpft is ', pctnatpft
+<           !===================
+---
+> 
+1282,1285c1215,1216
+<           call ncd_put_time_slice(ncid, varid, ntim, get_pct_p2l_array(pctnatpft))          
+<           !==== Tianyi Hu ====
+<           !write(6,*) 'pctcft is ', pctcft
+<           !===================
+---
+>           call ncd_put_time_slice(ncid, varid, ntim, get_pct_p2l_array(pctnatpft))
+> 
+1649c1580
+<     
+---
+> 
+1679c1610
+<              write(6,*)'n,pctlak,pctwet,pcturb,pctgla,pctnatveg,pctcrop,epsilon= ', &
+---
+>              write (6,*)'n,pctlak,pctwet,pcturb,pctgla,pctnatveg,pctcrop,epsilon= ', &
+===================================================
+===================================================
+mktopostatsMod.F90
+===================================================
+===================================================
+mkurbanparCommonMod.F90
+===================================================
+===================================================
+mkurbanparMod.F90
+82a83
+>    print *, "datafname=", datfname
+83a85
+>    print *, "check 1 done"
+84a87
+>    print *, "check 2 done"
+85a89
+>    print *, "check 3 done"
+86a91
+>    print *, "check 4 done"
+87a93
+>    print *, "check 5 done"
+89c95
+< 
+---
+>    print *, "check 6 done"
+===================================================
+===================================================
+mkutilsMod.F90
+===================================================
+===================================================
+mkvarctl.F90
+===================================================
+===================================================
+mkvarpar.F90
+21,23d20
+<   !==== Tianyi Hu ====
+<   !integer, parameter :: numstdpft = 18! number of standard PFT types
+<   !===================
+===================================================
+===================================================
+mkVICparamsMod.F90
+===================================================
+===================================================
+mkvocefMod.F90
+===================================================
+===================================================
+nanMod.F90
+===================================================
+===================================================
+README.unit_testing
+===================================================
+===================================================
+shr_const_mod.F90
+===================================================
+===================================================
+shr_file_mod.F90
+===================================================
+===================================================
+shr_kind_mod.F90
+===================================================
+===================================================
+shr_log_mod.F90
+===================================================
+===================================================
+shr_string_mod.F90
+===================================================
+===================================================
+shr_sys_mod.F90
+345a346
+> 
+===================================================
+===================================================
+shr_timer_mod.F90
+===================================================
+===================================================
+Srcfiles
+===================================================
+===================================================
+test
+Common subdirectories: ./src/test/mkgridmap_test and /home/u22/chopinsong/CTSM_SONG/tools/mksurfdata_map/src/test/mkgridmap_test
+Common subdirectories: ./src/test/mkindexmap_test and /home/u22/chopinsong/CTSM_SONG/tools/mksurfdata_map/src/test/mkindexmap_test
+Common subdirectories: ./src/test/mkpctPftType_test and /home/u22/chopinsong/CTSM_SONG/tools/mksurfdata_map/src/test/mkpctPftType_test
+Common subdirectories: ./src/test/mkpftmod_test and /home/u22/chopinsong/CTSM_SONG/tools/mksurfdata_map/src/test/mkpftmod_test
+Common subdirectories: ./src/test/mkpftUtils_test and /home/u22/chopinsong/CTSM_SONG/tools/mksurfdata_map/src/test/mkpftUtils_test
+Common subdirectories: ./src/test/mksoilUtils_test and /home/u22/chopinsong/CTSM_SONG/tools/mksurfdata_map/src/test/mksoilUtils_test
+===================================================
+===================================================
+unit_test_stubs
+===================================================
