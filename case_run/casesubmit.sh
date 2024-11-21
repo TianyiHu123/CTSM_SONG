@@ -12,8 +12,6 @@
 # SLURM Inherits your environment. cd $SLURM_SUBMIT_DIR not needed
 pwd; hostname; date
 source ~/.bashrc
-module load python/3.6
-module load gnu8/8.3.0
 #module list >> ./module.log
 ./case.submit > Run.log
 
