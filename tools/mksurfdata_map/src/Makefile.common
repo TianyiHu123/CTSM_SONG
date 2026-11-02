@@ -331,7 +331,9 @@ ifeq ($(UNAMES),Linux)
   ifeq ($(USER_FCTYP),gfortran)
    CPPDEF := -DCESMCOUPLED -DFORTRANUNDERSCORE -DNO_R16 -DCPRGNU
    CFLAGS :=  -std=gnu99
-   FFLAGS :=   -fconvert=big-endian -ffree-line-length-none -ffixed-line-length-none 
+   #FFLAGS :=   -fconvert=big-endian -ffree-line-length-none -ffixed-line-length-none 
+   # added by Tianyi Hu
+   FFLAGS :=   -fconvert=big-endian -ffree-line-length-none -ffixed-line-length-none -fallow-argument-mismatch -fallow-invalid-boz 
 
    CPPDEFS := $(CPPDEFS)  -DFORTRANUNDERSCORE -DNO_R16 -DCPRGNU
     
@@ -343,7 +345,7 @@ ifeq ($(UNAMES),Linux)
    #FFLAGS += -c -I$(INC_NETCDF) $(CPPDEFS) $(cpp_path)
    #CFLAGS += $(cpp_path) 
    FFLAGS   := -c -fno-second-underscore $(CPPDEF) $(cpp_path) -I$(MOD_NETCDF) \
-               -fno-range-check
+               -fno-range-check -fallow-argument-mismatch -fallow-invalid-boz # added by Tianyi Hu
    CFLAGS  += $(CPPDEF) $(cpp_path)
    #LDFLAGS += -L$(LIB_NETCDF) -lnetcdf -lnetcdff
   endif

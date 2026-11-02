@@ -389,13 +389,21 @@ case $hostname in
         mpi=uni
   fi  
   echo "REGRID_PROC=$REGRID_PROC"
-  export ESMFMKFILE=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/lib/libO/Linux.gfortran.64.openmpi.default/esmf.mk
+  #export ESMFMKFILE=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/lib/libO/Linux.gfortran.64.openmpi.default/esmf.mk
+  #echo "ESMFMKFILE=$ESMFMKFILE"
+  #export ESMFBIN_PATH=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/bin/binO
+  #if [ -z "$ESMFBIN_PATH" ]; then
+  #   ESMFBIN_PATH=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/bin/binO
+  #   echo "ESMFBIN_PATH DEFINE=$ESMFBION_PATH"
+  #fi  
+  export ESMFMKFILE=/home/u32/tianyihu/app/esmf-8.3.0/install/lib/libg/Linux.gfortran.64.openmpi.default/esmf.mk
   echo "ESMFMKFILE=$ESMFMKFILE"
-  export ESMFBIN_PATH=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/bin/binO
+  export ESMFBIN_PATH=/home/u32/tianyihu/app/esmf-8.3.0/install/bin/bing
   if [ -z "$ESMFBIN_PATH" ]; then
-     ESMFBIN_PATH=/home/u22/chopinsong/software/esmf-8.3.0/INSTALL/bin/binO
+     ESMFBIN_PATH=/home/u32/tianyihu/app/esmf-8.3.0/install/bin/bing
      echo "ESMFBIN_PATH DEFINE=$ESMFBION_PATH"
   fi  
+
   if [ -z "$MPIEXEC" ]; then
      MPIEXEC="mpirun -np $REGRID_PROC"
      echo "MPIEXEC define=$MPIEXEC"
