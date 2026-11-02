@@ -1,4 +1,7 @@
 # directories checked out by manage_externals, and other files created
+# case folders
+/case_run
+
 # by manage_externals
 manage_externals.log
 /src/fates/
