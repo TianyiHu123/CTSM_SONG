@@ -5,9 +5,6 @@
 # by manage_externals
 manage_externals.log
 /src/fates/
-/tools/PTCLM/
-/cime/
-/components/
 /doc/doc-builder/
 
 # ignore svn directories
