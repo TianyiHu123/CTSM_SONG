@@ -1,0 +1,8 @@
+[submodule "cime"]
+	path = cime
+	url = https://github.com
+	branch = cime5.8.32_a02_uahpc
+[submodule "tools/PTCLM"]
+	path = tools/PTCLM
+	url = https://github.com
+	branch = PTCLM_uahpc
